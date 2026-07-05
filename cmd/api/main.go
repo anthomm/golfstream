@@ -31,7 +31,7 @@ func main() {
 	// Ingest slice
 	kafkaProducer, err := kafka.NewKafkaProducer(
 		[]string{"localhost:9094"},
-		"events",
+		"hc",
 		logger,
 	)
 	if err != nil {
