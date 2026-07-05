@@ -8,6 +8,9 @@ import (
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"github.com/anthomm/golfstream/infrastructure/kafka"
+	"github.com/anthomm/golfstream/internal/ingest"
 )
 
 func main() {
@@ -24,6 +27,20 @@ func main() {
 	// Logs all panic to error log
 	//   - stack means whether output the stack info.
 	r.Use(ginzap.RecoveryWithZap(logger, true))
+
+	// Ingest slice
+	kafkaProducer, err := kafka.NewKafkaProducer(
+		[]string{"localhost:9094"},
+		"events",
+		logger,
+	)
+	if err != nil {
+		log.Fatalf("failed to create kafka producer: %v", err)
+	}
+	defer kafkaProducer.Close()
+
+	ingestHandler := ingest.NewHandler(kafkaProducer, logger)
+	ingestHandler.Register(r)
 
 	// Define a simple GET endpoint
 	r.GET("/ping", func(c *gin.Context) {
