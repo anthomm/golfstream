@@ -2,7 +2,11 @@ module github.com/anthomm/golfstream
 
 go 1.26
 
-require github.com/gin-gonic/gin v1.12.0
+require (
+	github.com/gin-contrib/zap v1.1.7
+	github.com/gin-gonic/gin v1.12.0
+	go.uber.org/zap v1.27.0
+)
 
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
@@ -29,6 +33,7 @@ require (
 	github.com/twmb/franz-go v1.21.5 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.22.0 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/net v0.53.0 // indirect

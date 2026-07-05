@@ -3,13 +3,27 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func main() {
-	// Create a Gin router with default middleware (logger and recovery)
+
 	r := gin.Default()
+	logger, _ := zap.NewProduction()
+
+	// Add a ginzap middleware, which:
+	//   - Logs all requests, like a combined access and error log.
+	//   - Logs to stdout.
+	//   - RFC3339 with UTC time format.
+	r.Use(ginzap.Ginzap(logger, time.RFC3339, true))
+
+	// Logs all panic to error log
+	//   - stack means whether output the stack info.
+	r.Use(ginzap.RecoveryWithZap(logger, true))
 
 	// Define a simple GET endpoint
 	r.GET("/ping", func(c *gin.Context) {
@@ -19,8 +33,11 @@ func main() {
 		})
 	})
 
+	r.GET("/panic", func(c *gin.Context) {
+		panic("An unexpected error happen!")
+	})
+
 	// Start server on port 8080 (default)
-	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
 	if err := r.Run(); err != nil {
 		log.Fatalf("failed to run server: %v", err)
 	}
