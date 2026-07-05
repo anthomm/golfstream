@@ -3,8 +3,8 @@ services:
     image: docker.io/bitnamilegacy/kafka:3.3.2
     container_name: kafka
     ports:
-    - "9092:9092" # internal docker network
-    - "9094:9094" # external --  echo '{"id":"1"}' | kcat -Pb :9094 -t test -p 0
+      - "9092:9092"
+      - "9094:9094"
     environment:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
@@ -22,3 +22,15 @@ services:
       test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server :9092 --topic hc --create --if-not-exists && kafka-topics.sh --bootstrap-server :9092 --topic hc --describe"]
       timeout: 5s
     restart: on-failure
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8888:8080" # Maps local port 8888 to container port 8080
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
