@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type KafkaProducer struct {
+type Producer struct {
 	client *kgo.Client
 	topic  string
 	log    *zap.Logger
 }
 
-func NewKafkaProducer(brokers []string, topic string, log *zap.Logger) (*KafkaProducer, error) {
+func NewKafkaProducer(brokers []string, topic string, log *zap.Logger) (*Producer, error) {
 	client, err := kgo.NewClient(
 		kgo.SeedBrokers(brokers...),
 		kgo.DefaultProduceTopic(topic),
@@ -24,14 +24,14 @@ func NewKafkaProducer(brokers []string, topic string, log *zap.Logger) (*KafkaPr
 		return nil, fmt.Errorf("kafka: create client: %w", err)
 	}
 
-	return &KafkaProducer{
+	return &Producer{
 		client: client,
 		topic:  topic,
 		log:    log,
 	}, nil
 }
 
-func (p *KafkaProducer) Produce(ctx context.Context, cmd ingest.Command) error {
+func (p *Producer) Produce(ctx context.Context, cmd ingest.Command) error {
 	record := &kgo.Record{
 		Topic: p.topic,
 		Value: cmd.Payload,
@@ -52,6 +52,6 @@ func (p *KafkaProducer) Produce(ctx context.Context, cmd ingest.Command) error {
 	return nil
 }
 
-func (p *KafkaProducer) Close() {
+func (p *Producer) Close() {
 	p.client.Close()
 }
